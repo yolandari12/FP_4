@@ -5,7 +5,7 @@ require('dotenv').config();
 const {JWT_SECRET_KEY} = process.env;
 
 module.exports = async (req, res, next) => {
-    let token = req.headers.authorization;
+    let token = req.headers.authorization || req.headers.token;
 
     if (!token)
         return response.forbiddenResponse(res, 'access token required');

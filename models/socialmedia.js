@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   SocialMedia.associate = (model) => {
-    SocialMedia.belongsTo(model.User, {foreignKey: 'user_id', foreignKeyConstraint: true})
+    SocialMedia.belongsTo(model.User, {foreignKey: 'user_id', foreignKeyConstraint: true, onDelete: 'cascade', hooks: true})
   }
 
   return SocialMedia;

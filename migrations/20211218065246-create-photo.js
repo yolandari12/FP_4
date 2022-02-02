@@ -1,18 +1,21 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('SocialMedia', {
+    await queryInterface.createTable('Photos', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      title: {
         type: Sequelize.STRING
       },
-      social_media_url: {
-        type: Sequelize.STRING
+      caption: {
+        type: Sequelize.TEXT
+      },
+      poster_image_url: {
+        type: Sequelize.TEXT
       },
       user_id: {
         type: Sequelize.INTEGER,
@@ -31,6 +34,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('SocialMedia');
+    await queryInterface.dropTable('Photos');
   }
 };

@@ -18,17 +18,17 @@
 							"urlencoded": [
 								{
 									"key": "full_name",
-									"value": "tera",
+									"value": "tera4",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "tera@mail.com",
+									"value": "tera3@mail.com",
 									"type": "text"
 								},
 								{
 									"key": "username",
-									"value": "teramuza",
+									"value": "teramuza4",
 									"type": "text"
 								},
 								{
@@ -54,12 +54,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/v1/users/register",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/users/register",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -72,6 +70,19 @@
 				},
 				{
 					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const result = pm.response.json()",
+									"console.log(result);",
+									"pm.collectionVariables.set('token', result.token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -80,7 +91,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "tera@mail.com",
+									"value": "tera3@mail.com",
 									"type": "text"
 								},
 								{
@@ -91,12 +102,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/v1/users/login",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/users/login",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -168,17 +177,55 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/v1/users/1",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/users/1",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
 								"users",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "tera3@mail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "tera123",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "tera12345",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/users/changePassword",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"changePassword"
 							]
 						}
 					},
@@ -200,12 +247,10 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/v1/users/:userID",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/users/:userID",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -258,12 +303,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/v1/socialmedias",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/socialmedias",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -289,12 +332,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/v1/socialmedias",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/socialmedias",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -336,12 +377,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/v1/socialmedias/:id",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/socialmedias/:id",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -374,12 +413,10 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/v1/socialmedias/:id",
-							"protocol": "http",
+							"raw": "{{host}}{{port}}/api/v1/socialmedias/:id",
 							"host": [
-								"localhost"
+								"{{host}}{{port}}"
 							],
-							"port": "4000",
 							"path": [
 								"api",
 								"v1",
@@ -389,7 +426,270 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5"
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Photo",
+			"item": [
+				{
+					"name": "Post Photo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "poster_image_url",
+									"value": "https://lh3.googleusercontent.com/-Bw3QgAP2Rg0/AAAAAAAAAAI/AAAAAAAAB9I/Ow8KOJDTsJE/photo.jpg?sz=256",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Tera",
+									"type": "text"
+								},
+								{
+									"key": "caption",
+									"value": "Tera Stack",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/photos",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"photos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Photos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/photos",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"photos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Photos",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "poster_image_url",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "Percobaan ke 1",
+									"type": "text"
+								},
+								{
+									"key": "caption",
+									"value": "Tugas akhir",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/photos/:photoId",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"photos",
+								":photoId"
+							],
+							"variable": [
+								{
+									"key": "photoId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Photos",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/photos/:photoId",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"photos",
+								":photoId"
+							],
+							"variable": [
+								{
+									"key": "photoId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Create Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Waw keren (2)",
+									"type": "text"
+								},
+								{
+									"key": "PhotoId",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/comments",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/comments",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comments",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Wah jelek",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/comments/:commentId",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "commentId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comments",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{port}}/api/v1/comments/:commentId",
+							"host": [
+								"{{host}}{{port}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "commentId",
+									"value": "3"
 								}
 							]
 						}
@@ -399,6 +699,16 @@
 			]
 		}
 	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
 	"event": [
 		{
 			"listen": "prerequest",
@@ -423,6 +733,17 @@
 		{
 			"key": "token",
 			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXJhQG1haWwuY29tIiwidXNlcm5hbWUiOiJ0ZXJhbXV6YSIsImlhdCI6MTYzOTQ1OTQ5NSwiZXhwIjoxNjM5NDYzMDk1fQ.FgxV0rT81Px5tjsFfrsXghqh4Nkeyctjzk_Tv6MaBVk"
+		},
+		{
+			"key": "host",
+			"value": "https://hacktiv8-final2.herokuapp.com"
+		},
+		{
+			"key": "port",
+			"value": ""
+		},
+		{
+			"value": ""
 		}
 	]
 }

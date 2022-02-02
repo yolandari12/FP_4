@@ -1,6 +1,7 @@
 'use strict';
 const {Model} = require('sequelize');
 const bcrypt = require("bcrypt");
+const logging = require('../helpers/logging');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -107,7 +108,7 @@ module.exports = (sequelize, DataTypes) => {
               user.password = hash;
             })
             .catch(err => {
-              throw new Error(err?.message);
+              logging.log(err);
             })
       },
       beforeUpdate(user, _) {
@@ -117,7 +118,7 @@ module.exports = (sequelize, DataTypes) => {
                 user.password = hash;
               })
               .catch(err => {
-                throw new Error(err?.message)
+                logging.log(err);
               })
         }
       }

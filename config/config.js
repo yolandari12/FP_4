@@ -9,7 +9,14 @@ let config = {
 }
 
 if (process.env.DEV_MODE === 'false') {
+  config["use_env_variable"] = "DATABASE_URL";
   config["logging"] = false;
+  config["dialectOptions"] = {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    },
+  }
 }
 
 module.exports = config;

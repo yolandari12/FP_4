@@ -1,24 +1,25 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('SocialMedia', {
+    await queryInterface.createTable('Comments', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING
-      },
-      social_media_url: {
-        type: Sequelize.STRING
-      },
       user_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'Users', key: 'id'},
+        references: { model: 'Users', key: 'id'}
+      },
+      photo_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'Photos', key: 'id'},
         onDelete: 'cascade',
         onUpdate: 'cascade'
+      },
+      comment: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
@@ -31,6 +32,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('SocialMedia');
+    await queryInterface.dropTable('Comments');
   }
 };

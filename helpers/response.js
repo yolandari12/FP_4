@@ -1,43 +1,50 @@
-const successResponse = (res, message, data, status = 200) => {
-    return res.status(status).json({
-        status: 'success',
-        message,
-        data
-    })
+const logging = require("../helpers/logging");
+const successResponse = (res, message, data = {}, status = 200) => {
+    if (message) {
+        data.message = message;
+    }
+    return res.status(status).json(data);
 }
 
 const unauthorizedResponse = (res, message) => {
     return res.status(401).json({
-        status: 'unauthorized',
+        type: 'unauthorized',
         message
     })
 }
 
 const forbiddenResponse = (res, message) => {
     return res.status(403).json({
-        status: 'forbidden',
-        message
+        type: 'forbidden',
+        error: {
+            message,
+        }
     })
 }
 
 const badRequestResponse = (res, error) => {
+    logging.error(error);
     return res.status(400).json({
-        status: 'bad request',
+        type: 'bad_request',
         error
     })
 }
 
 const serverErrorResponse = (res, error) => {
+    logging.error(error);
     return res.status(503).json({
-        status: 'server error',
+        type: 'server_error',
         error
     })
 }
 
-const validationErrorResponse = (res, message) => {
+const validationErrorResponse = (res, error) => {
+    logging.error(error);
     return res.status(400).json({
-        status: 'validation error',
-        message
+        type: 'validation_error',
+        error: {
+            message: error.message,
+        }
     })
 }
 

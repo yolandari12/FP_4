@@ -22,19 +22,20 @@ const register = async (req, res) => {
         User.create({full_name, email, username, password, profile_image_url, age, phone_number})
             .then(() => responseUtil.successResponse(
                 res,
-                `Hi ${full_name}, your account was created successfully`,
+                null,
                 {user: {email, full_name, username, profile_image_url, age, phone_number}},
                 201
             ))
             .catch((e) => {
-                if (e instanceof ValidationError)
-                    return responseUtil.validationErrorResponse(res, e.errors[0].message)
+                if (e instanceof ValidationError) {
+                    return responseUtil.validationErrorResponse(res, e.errors[0]);
+                }
                 else {
                     return responseUtil.badRequestResponse(res, e);
                 }
             });
     } catch (e) {
-        return responseUtil.serverErrorResponse(res, e.message);
+        return responseUtil.serverErrorResponse(res, {message: e.message});
     }
 }
 
@@ -54,7 +55,7 @@ const login = (req, res) => {
                             const token = jwt.sign(userData, JWT_SECRET_KEY, {
                                 expiresIn: '1h',
                             });
-                            return responseUtil.successResponse(res, 'login success', {token});
+                            return responseUtil.successResponse(res, null, {token});
                         } else {
                             return responseUtil.unauthorizedResponse(res, 'password invalid')
                         }
@@ -65,7 +66,7 @@ const login = (req, res) => {
             return responseUtil.badRequestResponse(res, {message: 'email & password required'})
         }
     } catch (e) {
-        return responseUtil.serverErrorResponse(res, e.message);
+        return responseUtil.serverErrorResponse(res, {message: e.message});
     }
 }
 
@@ -82,18 +83,26 @@ const updateUser = (req, res) => {
         }
         const userId = parseInt(req.params.userId);
         if (req.user.id === userId) {
-            User.update(bodyData, {where: {id: userId}})
-                .then(() => {
-                    return responseUtil.successResponse(res, 'update data successfully', bodyData);
+            User.update(bodyData, {where: {id: userId}, returning: true})
+                .then((data) => {
+                    if (data[0] === 0){
+                        return responseUtil.badRequestResponse(res, {message: 'data not found'});
+                    }
+                    if (data[1][0])
+                        data[1][0]['password'] = undefined;
+                    return responseUtil.successResponse(res, null, {user: data[1][0]});
                 })
                 .catch(err => {
+                    if (err instanceof ValidationError) {
+                        return responseUtil.validationErrorResponse(res, err.errors[0]);
+                    }
                     return responseUtil.badRequestResponse(res, err);
                 })
         } else {
             return responseUtil.badRequestResponse(res, {message: 'you can only update your own data'})
         }
     } catch (e) {
-        return responseUtil.serverErrorResponse(res, e.message);
+        return responseUtil.serverErrorResponse(res, {message: e.message});
     }
 }
 
@@ -121,7 +130,7 @@ const updatePassword = (req, res) => {
                 })
         }
     } catch (e) {
-        return responseUtil.serverErrorResponse(res, e.message);
+        return responseUtil.serverErrorResponse(res, {message: e.message});
     }
 }
 
@@ -133,13 +142,13 @@ const deleteUser = (req, res) => {
                 if (result === 0) {
                     return responseUtil.badRequestResponse(res, {message: 'Account not found'});
                 }
-                return responseUtil.successResponse(res, 'Account has been successfully deleted');
+                return responseUtil.successResponse(res, 'Your account has been successfully deleted');
             })
             .catch(err => {
                 return responseUtil.badRequestResponse(res, err);
             })
     } catch (e) {
-        return responseUtil.serverErrorResponse(res, e.message);
+        return responseUtil.serverErrorResponse(res, {message: e.message});
     }
 }
 
