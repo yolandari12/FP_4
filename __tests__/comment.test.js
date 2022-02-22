@@ -1,4 +1,3 @@
-
 const app = require("../app.js");
 const request = require("supertest");
 const { User, Comment, Photo } = require("../models");
@@ -99,7 +98,7 @@ describe("create comments", () => {
 	});
 });
 
-describe("delete and update comments", () => {
+describe("get, delete, and update comments", () => {
 	let comment_instance;
 	let photo_create = {
 		poster_image_url:
@@ -205,4 +204,3 @@ afterAll(async (done) => {
 	await Photo.destroy({ where: { user_id: user_testing.dataValues.id } });
 	done();
 });
-
