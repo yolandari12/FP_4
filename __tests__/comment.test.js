@@ -1,268 +1,208 @@
-const jwt = require('jsonwebtoken')
-const axios = require('axios')
-const request = require('supertest')
+const app = require("../app.js");
+const request = require("supertest");
+const { User, Comment, Photo } = require("../models");
 
-const app = require('../app.js')
+let token, user_instance, user_id;
 
-const userRegistrationData = {
-  email: "yolan@tester.com",
-  full_name: "Yolan Tester",
-  username: "yolan_tester",
-  password: "test_test",
-  profile_image_url: "https://www.google.com",
-  age: 22,
-  phone_number: "085999887285",
-}
+const user_register = {
+	email: "user_testing@gmail.com",
+	username: "user_testing",
+	password: "123",
+	full_name: "user",
+	age: "20",
+	phone_number: "081234567890",
+	profile_image_url: "https://example.com",
+};
 
-const userLoginData = {
-  email: userRegistrationData.email,
-  password: userRegistrationData.password,
-}
+const user_login = {
+	email: "user_testing@gmail.com",
+	password: "123",
+};
 
-const photosPostData = {
-  poster_image_url: "https://www.google.com",
-  title: "foto test",
-  caption: "ini foto test",
-}
+const photo_create = {
+	poster_image_url:
+		"https://lh3.googleusercontent.com/-Bw3QgAP2Rg0/AAAAAAAAAAI/AAAAAAAAB9I/Ow8KOJDTsJE/photo.jpg?sz=256",
+	title: "Photos",
+	caption: "This is the caption of the photo",
+};
 
-const commentPostData = {
-  comment: "comment ini hanyalah percobaan",
-  PhotoId: -1,
-}
+const comment_create = {
+	comment: "comment ini hanyalah percobaan",
+};
 
-const commentEditData = {
-  comment: "comment ini merupakan hasil editan",
-}
+const comment_update = {
+	comment: "comment ini merupakan hasil editan",
+};
 
+beforeAll(async (done) => {
+	request(app)
+		.post("/api/v1/users/register")
+		.send(user_register)
+		.end((err, res) => {
+			if (err) {
+				console.log(err);
+				done();
+			} else {
+				done();
+			}
+		});
+});
 
-let jwtToken;
-let lastPhotoId;
-let commentId;
-
-beforeAll(async () => {
-  try {
-    await userRegistration()
-    jwtToken = await getJwtToken()
-    lastPhotoId = await createPhoto(jwtToken)
-
-    commentPostData.PhotoId = lastPhotoId
-  } catch (error) {
-    console.error(error)
-  }
-})
-
-afterAll(async () => {
-  try {
-    await deletePhoto(jwtToken)
-    await deleteUser(jwtToken)
-  } catch (error) {
-    console.error(error)
-  }
-})
+beforeEach((done) => {
+	request(app)
+		.post("/api/v1/users/login")
+		.send(user_login)
+		.end(async (err, res) => {
+			if (err) {
+				console.log(err);
+				done();
+			} else {
+				token = res.body.token;
+				user_instance = await User.findOne({ where: { email: "user_testing@gmail.com" } });
+				user_id = user_instance.dataValues.id;
+				done();
+			}
+		});
+});
 
 describe("POST /comments", () => {
-  test("Successfully create a comment", (done) => {
-    request(app)
-      .post('/comments')
-      .send(commentPostData)
-      .set('Accept', 'application/json')
-      .set('token', jwtToken)
-      .expect(201)
-      .end((err, res) => {
-        if (err) return done(err)
+	// create photos instance
+	beforeAll((done) => {
+		request(app)
+			.post(`/api/v1/photos`)
+			.set("token", `${token}`)
+			.send(photo_create)
+			.end((err, res) => {
+				if (err) {
+					console.log(err);
+					done();
+				} else {
+					done();
+				}
+			});
+	});
 
-        expect(res.body).toHaveProperty("comment")
+	test("Successfully create a comment", (done) => {
+		request(app)
+			.post("/api/v1/comments")
+			.set("Accept", "application/json")
+			.set("token", `${token}`)
+			.send(comment_create)
+			.end((err, res) => {
+				if (err) {
+					done(err);
+				} else {
+					expect(res.statusCode).toBe(201);
+					expect(res.body).toHaveProperty("comment");
 
-        expect(res.body.comment).toHaveProperty("id")
-        expect(res.body.comment.id).toBeGreaterThan(0)
+					expect(res.body.comment).toHaveProperty("id");
+					expect(res.body.comment.id).toBeGreaterThan(0);
 
-        expect(res.body.comment).toHaveProperty("comment")
-        expect(res.body.comment.comment).toBe(commentPostData.comment)
+					expect(res.body.comment).toHaveProperty("comment");
+					expect(res.body.comment.comment).toBe(comment_create.comment);
 
-        expect(res.body.comment).toHaveProperty("UserId")
-        expect(res.body.comment.UserId).toBeGreaterThan(0)
+					expect(res.body.comment).toHaveProperty("updatedAt");
+					expect(res.body.comment).toHaveProperty("createdAt");
 
-        expect(res.body.comment).toHaveProperty("PhotoId")
-        expect(res.body.comment.PhotoId).toBe(lastPhotoId)
+					done();
+				}
+			});
+	});
+});
 
-        expect(res.body.comment).toHaveProperty("updatedAt")
-        expect(res.body.comment).toHaveProperty("createdAt")
+// describe("GET /comments", () => {
+// 	test("See all comments", (done) => {
+// 		request(app)
+// 			.get("/api/comments")
+// 			.set("Accept", "application/json")
+// 			.set("token", jwtToken)
+// 			.expect(200)
+// 			.end((err, res) => {
+// 				if (err) return done(err);
 
-        commentId = res.body.comment.id
-        return done()
-      })
-  })
-})
+// 				expect(res.body).toHaveProperty("comments");
+// 				expect(res.body.comments.length).toBeGreaterThan(0);
 
-describe("GET /comments", () => {
-  test("See all comments", (done) => {
-    request(app)
-      .get('/api/comments')
-      .set('Accept', 'application/json')
-      .set('token', jwtToken)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err)
+// 				const commentsLength = res.body.comments.length;
 
-        expect(res.body).toHaveProperty("comments")
-        expect(res.body.comments.length).toBeGreaterThan(0)
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("id");
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("UserId");
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("PhotoId");
+// 				expect(res.body.comments[commentsLength - 1].PhotoId).toBe(lastPhotoId);
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("comment");
+// 				expect(res.body.comments[commentsLength - 1].comment).toBe(commentPostData.comment);
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("updatedAt");
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("createdAt");
 
-        const commentsLength = res.body.comments.length
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("Photo");
+// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("id");
+// 				expect(res.body.comments[commentsLength - 1].Photo.id).toBe(lastPhotoId);
+// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("title");
+// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("caption");
+// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("poster_image_url");
 
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("id")
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("UserId")
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("PhotoId")
-        expect(res.body.comments[commentsLength - 1].PhotoId).toBe(lastPhotoId)
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("comment")
-        expect(res.body.comments[commentsLength - 1].comment).toBe(commentPostData.comment)
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("updatedAt")
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("createdAt")
+// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("User");
+// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("id");
+// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("username");
+// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("profile_image_url");
+// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("phone_number");
 
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("Photo")
-        expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("id")
-        expect(res.body.comments[commentsLength - 1].Photo.id).toBe(lastPhotoId)
-        expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("title")
-        expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("caption")
-        expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("poster_image_url")
+// 				return done();
+// 			});
+// 	});
+// });
 
-        expect(res.body.comments[commentsLength - 1]).toHaveProperty("User")
-        expect(res.body.comments[commentsLength - 1].User).toHaveProperty("id")
-        expect(res.body.comments[commentsLength - 1].User).toHaveProperty("username")
-        expect(res.body.comments[commentsLength - 1].User).toHaveProperty("profile_image_url")
-        expect(res.body.comments[commentsLength - 1].User).toHaveProperty("phone_number")
+// describe("PUT /comments/:commetId", () => {
+// 	test("Successfully edit a comment", (done) => {
+// 		request(app)
+// 			.put(`/comments/${commentId}`)
+// 			.send(commentEditData)
+// 			.set("Accept", "application/json")
+// 			.set("token", jwtToken)
+// 			.expect(200)
+// 			.end((err, res) => {
+// 				if (err) return done(err);
 
-        return done()
-      })
+// 				expect(res.body).toHaveProperty("comment");
+// 				expect(res.body.comment).toHaveProperty("id");
+// 				expect(res.body.comment).toHaveProperty("comment");
+// 				expect(res.body.comment.comment).toBe(commentEditData.comment);
+// 				expect(res.body.comment).toHaveProperty("UserId");
+// 				expect(res.body.comment).toHaveProperty("PhotoId");
+// 				expect(res.body.comment.PhotoId).toBe(lastPhotoId);
+// 				expect(res.body.comment).toHaveProperty("updatedAt");
+// 				expect(res.body.comment).toHaveProperty("createdAt");
 
-  })
-})
+// 				return done();
+// 			});
+// 	});
+// });
 
-describe("PUT /comments/:commetId", () => {
-  test("Successfully edit a comment", (done) => {
-    request(app)
-      .put(`/comments/${commentId}`)
-      .send(commentEditData)
-      .set('Accept', 'application/json')
-      .set('token', jwtToken)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err)
+// describe("DELETE /comments/:commentId", () => {
+// 	test("Successfully delete a comment", (done) => {
+// 		request(app)
+// 			.delete(`/comments/${commentId}`)
+// 			.set("Accept", "application/json")
+// 			.set("token", jwtToken)
+// 			.expect(200)
+// 			.end((err, res) => {
+// 				if (err) return done(err);
 
-        expect(res.body).toHaveProperty("comment")
-        expect(res.body.comment).toHaveProperty("id")
-        expect(res.body.comment).toHaveProperty("comment")
-        expect(res.body.comment.comment).toBe(commentEditData.comment)
-        expect(res.body.comment).toHaveProperty("UserId")
-        expect(res.body.comment).toHaveProperty("PhotoId")
-        expect(res.body.comment.PhotoId).toBe(lastPhotoId)
-        expect(res.body.comment).toHaveProperty("updatedAt")
-        expect(res.body.comment).toHaveProperty("createdAt")
+// 				expect(res.body).toHaveProperty("message");
+// 				expect(res.body).toBeDefined();
+// 				expect(res.body).not.toBeNull();
+// 				expect(res.body.message).toBe("Your comment has been successfully deleted");
+// 				expect(res.body.message).toMatch(/deleted/);
 
-        return done()
-      })
-  })
-})
-describe("DELETE /comments/:commentId", () => {
-  test("Successfully delete a comment", (done) => {
-    request(app)
-      .delete(`/comments/${commentId}`)
-      .set('Accept', 'application/json')
-      .set('token', jwtToken)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err)
+// 				return done();
+// 			});
+// 	});
+// });
 
-        expect(res.body).toHaveProperty("message")
-        expect(res.body).toBeDefined()
-        expect(res.body).not.toBeNull()
-        expect(res.body.message).toBe("Your comment has been successfully deleted")
-        expect(res.body.message).toMatch(/deleted/)
-
-        return done()
-      })
-  })
-})
-
-async function userRegistration() {
-  try {
-    const response = await axios({
-      url: 'http://localhost:3000/api/users/register',
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: userRegistrationData
-    })
-
-  } catch (error) {
-    console.error(error.toJSON())
-  }
-}
-
-async function getJwtToken() {
-  try {
-    const response = await axios({
-      url: 'http://localhost:3000/api/users/login',
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: userLoginData
-    })
-
-    return response.data.token
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async function createPhoto(jwtToken) {
-  try {
-    const response = await axios({
-      url: 'http://localhost:3000/api/photos',
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        'token': jwtToken
-      },
-      data: photosPostData
-    })
-
-    return response.data.id
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async function deletePhoto(jwtToken) {
-  try {
-    const response = await axios({
-      url: `http://localhost:3000/api/photos/${lastPhotoId}`,
-      method: 'delete',
-      headers: {
-        'Content-Type': 'application/json',
-        'token': jwtToken
-      },
-    })
-
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async function deleteUser(jwtToken) {
-  try {
-    const userData = await jwt.decode(jwtToken)
-    const userId = userData.id
-
-    const response = await axios({
-      url: `http://localhost:3000/api/users/${userId}`,
-      headers: {
-        'token': jwtToken,
-      },
-      method: 'delete'
-    })
-  } catch (error) {
-    console.error(error)
-  }
-}
+afterAll(async (done) => {
+	let user_testing = await User.findOne({ where: { email: "user_testing@gmail.com" } });
+	await user_testing.destroy();
+	await Comment.destroy({ where: { user_id: user_testing.dataValues.id } });
+	await Photo.destroy({ where: { user_id: user_testing.dataValues.id } });
+	done();
+});
