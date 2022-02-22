@@ -45,5 +45,5 @@ Start the testing (per file)
 
 -   User authentication testing : ![successfully implement supertest testing on user URL](/images/userTesting.png "MarineGEO logo")
 -   Photo CRUD testing : ![successfully implement supertest testing on user URL](/images/photoTesting.png "MarineGEO logo")
-User authentication testing : ![successfully implement supertest testing on user URL](/images/comment.jpeg "MarineGEO logo")
-User authentication testing : ![successfully implement supertest testing on user URL](/images/sosmed.jpg"MarineGEO logo")
+Comment authentication testing : ![successfully implement supertest testing on user URL](/images/comment.jpeg "MarineGEO logo")
+Sosmed authentication testing : ![successfully implement supertest testing on user URL](/images/sosmed.jpg"MarineGEO logo")
