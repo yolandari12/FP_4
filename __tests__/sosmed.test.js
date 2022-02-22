@@ -2,7 +2,7 @@ const app = require("../app.js");
 const request = require("supertest");
 const { User, SocialMedia } = require("../models");
 
-let token, user_instance, user_id;
+let token, user_instance, user_id; 
 
 const user_register = {
 	email: "user_testing@gmail.com",
