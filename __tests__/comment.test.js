@@ -1,3 +1,4 @@
+
 const app = require("../app.js");
 const request = require("supertest");
 const { User, Comment, Photo } = require("../models");
@@ -204,3 +205,4 @@ afterAll(async (done) => {
 	await Photo.destroy({ where: { user_id: user_testing.dataValues.id } });
 	done();
 });
+
