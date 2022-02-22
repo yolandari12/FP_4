@@ -110,94 +110,124 @@ describe("POST /comments", () => {
 	});
 });
 
-// describe("GET /comments", () => {
-// 	test("See all comments", (done) => {
-// 		request(app)
-// 			.get("/api/comments")
-// 			.set("Accept", "application/json")
-// 			.set("token", jwtToken)
-// 			.expect(200)
-// 			.end((err, res) => {
-// 				if (err) return done(err);
+describe("GET /comments", () => {
+	beforeAll((done) => {
+		request(app)
+			.post(`/api/v1/photos`)
+			.set("token", `${token}`)
+			.send(photo_create)
+			.end((err, res) => {
+				if (err) {
+					console.log(err);
+					done();
+				} else {
+					done();
+				}
+			});
+	});
+	test("See all comments", (done) => {
+		request(app)
+			.get("/api/v1/comments")
+			.set("Accept", "application/json")
+			.set("token", `${token}`)
+			.expect(200)
+			.end((err, res) => {
+				if (err) return done(err);
 
-// 				expect(res.body).toHaveProperty("comments");
-// 				expect(res.body.comments.length).toBeGreaterThan(0);
+				expect(res.body).toHaveProperty("comments");
+				expect(res.body.comments.length).toBeGreaterThan(0);
 
-// 				const commentsLength = res.body.comments.length;
+				//const commentsLength = res.body.comments.length;
 
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("id");
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("UserId");
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("PhotoId");
-// 				expect(res.body.comments[commentsLength - 1].PhotoId).toBe(lastPhotoId);
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("comment");
-// 				expect(res.body.comments[commentsLength - 1].comment).toBe(commentPostData.comment);
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("updatedAt");
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("createdAt");
+				expect(res.statusCode).toBe(200)
+				expect(typeof res).toBe("object")
+				expect(res.body).toHaveProperty('comments')
+				expect(res.body.comments[0]).toHaveProperty('id')
+				expect(res.body.comments[0]).toHaveProperty('user_id')
+				expect(res.body.comments[0]).toHaveProperty('photo_id')
+				expect(res.body.comments[0]).toHaveProperty('comment')
+				expect(res.body.comments[0]).toHaveProperty('updatedAt')
+				expect(res.body.comments[0]).toHaveProperty('createdAt')
 
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("Photo");
-// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("id");
-// 				expect(res.body.comments[commentsLength - 1].Photo.id).toBe(lastPhotoId);
-// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("title");
-// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("caption");
-// 				expect(res.body.comments[commentsLength - 1].Photo).toHaveProperty("poster_image_url");
+				return done();
+			});
+	});
+});
 
-// 				expect(res.body.comments[commentsLength - 1]).toHaveProperty("User");
-// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("id");
-// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("username");
-// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("profile_image_url");
-// 				expect(res.body.comments[commentsLength - 1].User).toHaveProperty("phone_number");
+describe("PUT /comments/:commetId", () => {
+	beforeAll((done) => {
+		request(app)
+			.post(`/api/v1/photos`)
+			.set("token", `${token}`)
+			.send(photo_create)
+			.end((err, res) => {
+				if (err) {
+					console.log(err);
+					done();
+				} else {
+					done();
+				}
+			});
+	});
+	test("Successfully edit a comment", (done) => {
+		request(app)
+			.put(`/api/v1/comments/${commentId}`)
+			.send(commentEditData)
+			.set("Accept", "application/json")
+			.set("token", `${token}`)
+			.expect(200)
+			.end((err, res) => {
+				if (err) return done(err);
 
-// 				return done();
-// 			});
-// 	});
-// });
+				expect(res.body).toHaveProperty("comment");
+				expect(res.body.comment).toHaveProperty("id");
+				expect(res.body.comment).toHaveProperty("comment");
+				expect(res.body.comment.comment).toBe(commentEditData.comment);
+				expect(res.body.comment).toHaveProperty("user_id");
+				expect(res.body.comment).toHaveProperty("photo_id");
+				//expect(res.body.comment.PhotoId).toBe(lastPhotoId);
+				expect(res.body.comment).toHaveProperty("updatedAt");
+				expect(res.body.comment).toHaveProperty("createdAt");
 
-// describe("PUT /comments/:commetId", () => {
-// 	test("Successfully edit a comment", (done) => {
-// 		request(app)
-// 			.put(`/comments/${commentId}`)
-// 			.send(commentEditData)
-// 			.set("Accept", "application/json")
-// 			.set("token", jwtToken)
-// 			.expect(200)
-// 			.end((err, res) => {
-// 				if (err) return done(err);
+				return done();
+			});
+	});
+});
 
-// 				expect(res.body).toHaveProperty("comment");
-// 				expect(res.body.comment).toHaveProperty("id");
-// 				expect(res.body.comment).toHaveProperty("comment");
-// 				expect(res.body.comment.comment).toBe(commentEditData.comment);
-// 				expect(res.body.comment).toHaveProperty("UserId");
-// 				expect(res.body.comment).toHaveProperty("PhotoId");
-// 				expect(res.body.comment.PhotoId).toBe(lastPhotoId);
-// 				expect(res.body.comment).toHaveProperty("updatedAt");
-// 				expect(res.body.comment).toHaveProperty("createdAt");
+describe("DELETE /comments/:commentId", () => {
+	beforeAll((done) => {
+		request(app)
+			.post(`/api/v1/photos`)
+			.set("token", `${token}`)
+			.send(photo_create)
+			.end((err, res) => {
+				if (err) {
+					console.log(err);
+					done();
+				} else {
+					done();
+				}
+			});
+	});
+	test("Successfully delete a comment", (done) => {
+		request(app)
+			.delete(`/api/v1/comments/${commentId}`)
+			.set("Accept", "application/json")
+			.set("token", `${token}`)
+			.expect(200)
+			.end((err, res) => {
+				if (err) return done(err);
 
-// 				return done();
-// 			});
-// 	});
-// });
+				expect(res.body).toHaveProperty("message");
+				expect(res.body).toBeDefined();
+				expect(res.body).not.toBeNull();
+				expect(res.body.message).toBe("Your comment has been successfully deleted");
+				expect(res.body.message).toMatch(/deleted/);
 
-// describe("DELETE /comments/:commentId", () => {
-// 	test("Successfully delete a comment", (done) => {
-// 		request(app)
-// 			.delete(`/comments/${commentId}`)
-// 			.set("Accept", "application/json")
-// 			.set("token", jwtToken)
-// 			.expect(200)
-// 			.end((err, res) => {
-// 				if (err) return done(err);
-
-// 				expect(res.body).toHaveProperty("message");
-// 				expect(res.body).toBeDefined();
-// 				expect(res.body).not.toBeNull();
-// 				expect(res.body.message).toBe("Your comment has been successfully deleted");
-// 				expect(res.body.message).toMatch(/deleted/);
-
-// 				return done();
-// 			});
-// 	});
-// });
+				return done();
+			});
+	});
+});
 
 afterAll(async (done) => {
 	let user_testing = await User.findOne({ where: { email: "user_testing@gmail.com" } });
